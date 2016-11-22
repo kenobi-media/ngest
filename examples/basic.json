@@ -16,7 +16,22 @@
         },
         "uuid": {
             "$ref": "#/examples/uuid.json"
+        },
+        "venue": {
+            "$ref": "#/definitions/venue"
         }
     },
-    "required": ["firstName", "lastName", "uuid"]
+    "required": ["firstName", "lastName", "uuid"],
+    "definitions": {
+      "venue": {
+            "required": ["name", "location"],
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "name of the venue"
+                }
+            }
+        }
+    }
 }

@@ -26,7 +26,8 @@ function resolveReference(obj) {
             obj[current_key] = resolveReference(current_key_val);
         } else {
             let base_url, fragment, fetch_url, schema= "";
-            if (current_key == '$ref' && current_key_val.indexOf('#') !== -1) {
+            // only review $ref keys, which have a value with a hash and the value does not include a definitions as definitions are usually insitu
+            if (current_key == '$ref' && current_key_val.indexOf('#') !== -1 && current_key_val.indexOf('definitions') === -1) {
                 // Check $ref attributes and parse them
                 fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
                 base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
