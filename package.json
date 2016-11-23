@@ -16,7 +16,6 @@
     "generator",
     "builder",
     "build",
-    "s3",
     "lambda",
     "api",
     "apigateway"
@@ -36,7 +35,7 @@
     "url": "https://github.com/kenobi-media/ngest/issues"
   },
   "homepage": "https://github.com/kenobi-media/ngest#readme",
-  "dependencies": {
+  "dev-dependencies": {
     "jasmine-node": "1.14.5"
   }
 }
