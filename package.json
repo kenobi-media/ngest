@@ -35,7 +35,7 @@
     "url": "https://github.com/kenobi-media/ngest/issues"
   },
   "homepage": "https://github.com/kenobi-media/ngest#readme",
-  "dev-dependencies": {
+  "devDependencies": {
     "jasmine-node": "1.14.5"
   }
 }
