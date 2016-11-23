@@ -17,15 +17,24 @@
         "uuid": {
             "$ref": "#/examples/uuid.json"
         },
+        "jungular": {
+            "$ref": "#/examples/images.json"
+        },
         "venue": {
             "$ref": "#/definitions/venue"
         }
     },
     "required": ["firstName", "lastName", "uuid"],
     "definitions": {
-      "venue": {
+        "venue": {
             "required": ["name", "location"],
             "properties": {
+                "uuid": {
+                    "$ref": "#/examples/uuid.json"
+                },
+                "photos": {
+                    "$ref": "#/examples/images.json"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 500,
