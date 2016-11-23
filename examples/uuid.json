@@ -12,9 +12,6 @@
         },
         "label": {
             "type": "string"
-        },
-        "jugular": {
-            "$ref": "#/examples/images.json"
         }
     }
 }
