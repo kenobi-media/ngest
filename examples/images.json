@@ -23,9 +23,6 @@
                 "type": "string",
                 "maxLength": 255,
                 "description": "Used to caption the image"
-            },
-            "uuid": {
-                "$ref": "#/examples/uuid.json"
             }
         }
     }

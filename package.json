@@ -1,30 +1,41 @@
 {
-  "name": "ngest",
-  "version": "1.0.0",
-  "description": "Ingests multiple JSON schemas into one schema, by resolving $ref property data. Will ingest absolute  and relative references",
-  "main": "index.js",
-  "scripts": {
-    "test": "npm test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kenobi-media/ngest.git"
-  },
-  "keywords": [
-    "JSON",
-    "schema",
-    "generator",
-    "builder",
-    "build",
-    "s3",
-    "lambda",
-    "api",
-    "apigateway"
-  ],
-  "author": "Morlene Fisher",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kenobi-media/ngest/issues"
-  },
-  "homepage": "https://github.com/kenobi-media/ngest#readme"
+    "name": "ngest",
+    "version": "1.0.0",
+    "description": "Ingests multiple JSON schemas into one schema, by resolving $ref property data. Will ingest absolute  and relative references",
+    "main": "index.js",
+    "scripts": {
+        "test": "jasmine-node ./ --color"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/kenobi-media/ngest.git"
+    },
+    "keywords": [
+        "JSON",
+        "schema",
+        "generator",
+        "builder",
+        "build",
+        "s3",
+        "lambda",
+        "api",
+        "apigateway"
+    ],
+    "author": {
+        "name": "Morlene Fisher",
+        "email": "morlene@kenobi-media.com"
+    },
+    "contributors": [{
+        "name": "David Toth",
+        "email": "david@kenobi-media.com"
+    }],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/kenobi-media/ngest/issues"
+    },
+    "homepage": "https://github.com/kenobi-media/ngest#readme",
+    "dependencies": {
+        "jasmine-node": "1.14.5",
+        "uuid": "3.0.0"
+    }
 }
