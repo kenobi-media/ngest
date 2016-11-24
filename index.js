@@ -6,19 +6,13 @@ let base, data;
 function addToDefinitions(refprop){
   // console.log(base);
    if (base.hasOwnProperty("definitions")){
-     console.log('base has definitions');
      base.definitions[refprop['title']] = refprop;
    } else {
-     console.log('base has no definitions addding it');
      let defs = 'definitions';
      let prop = refprop['title'];
      base[defs] = { [prop]: refprop};
    }
  }
-
-function changeCurrentValToDefinition(refprop){
-
-}
 
 function getSchema(current_key_val){
 

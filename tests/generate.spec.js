@@ -8,11 +8,14 @@ describe('Test generate schema', function() {
         expect(handler).toBeDefined();
     });
 
-    it('can generate stuff', function() {
+    it('can generate stuff', function(done) {
         let dest = process.cwd() + '/examples/results.json';
         let source = process.cwd() + '/examples/uuid.json';
         handler(source, dest);
-        let stats = fs.statSync(dest)
-        expect(stats).toBeDefined();
+         fs.stat(dest, function(err, stats){
+           expect(stats).toBeDefined();
+           done();
+
+         });
     })
 })
