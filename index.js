@@ -1,6 +1,53 @@
 'use strict';
 
 let fs = require('fs');
+let base, data;
+
+function addToDefinitions(refprop){
+  // console.log(base);
+   if (base.hasOwnProperty("definitions")){
+     base.definitions[refprop['title']] = refprop;
+   } else {
+     let defs = 'definitions';
+     let prop = refprop['title'];
+     base[defs] = { [prop]: refprop};
+   }
+ }
+
+function getSchema(current_key_val){
+
+  // Check $ref attributes and parse them
+  let fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
+  let base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
+
+  // if (typeof base_url != 'undefined') {
+  //       if (typeof fragment != 'undefined') {
+  //         fetch_url = base_url + '/' + fragment;
+  //         // Go fetch URL
+  //       }
+  //       else {
+  //         // Fetch base URL
+  //       }
+  // }
+
+  if (typeof fragment != 'undefined') {
+    // Fetch from file system
+      console.log('Using schema specified in fragment ' + fragment);
+      let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
+      delete schema["$schema"];
+      delete schema["id"];
+
+      // need to add this to definitions
+      addToDefinitions(schema);
+      // changeCurrentValToDefinition(schema);
+
+      return {
+        'new_key_value': '#/definitions/' + schema['title'],
+        'new_schema': schema
+      }
+  }
+}
+
 
 function resolveReference(obj) {
 
@@ -17,36 +64,21 @@ function resolveReference(obj) {
 
         if (typeof current_key_val == 'object') {
             // Recurse on any child objects
-            obj[current_key] = resolveReference(current_key_val);
+            // obj[current_key] = resolveReference(current_key_val);
+            resolveReference(current_key_val);
         } else {
-            let base_url, fragment, fetch_url, schema = "";
+            let res, schema= "";
             // only review $ref keys, which have a value with a hash and the value does not include a definitions as definitions are usually insitu
             if (current_key == '$ref' && current_key_val.indexOf('#') !== -1 && current_key_val.indexOf('definitions') === -1) {
-                // Check $ref attributes and parse them
-                fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
-                base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
 
-                // if (typeof base_url != 'undefined') {
-                //       if (typeof fragment != 'undefined') {
-                //         fetch_url = base_url + '/' + fragment;
-                //         // Go fetch URL
-                //       }
-                //       else {
-                //         // Fetch base URL
-                //       }
-                // }
-
-                if (typeof fragment != 'undefined') {
-                    // Fetch from file system
-                    console.log('Using schema specified in fragment');
-                    schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
+                res = getSchema( current_key_val);
+                if (res){
+                  // Make some amends to our sub-schema
+                  obj[props[key]] = res.new_key_value;
+                  // Recurse on the sub-schema
+                  resolveReference(res.new_schema);
                 }
 
-                // Make some amends to our sub-schema
-                delete schema["$schema"];
-
-                // Recurse on the sub-schema
-                return resolveReference(schema);
             }
 
         }
@@ -71,7 +103,6 @@ function writeOut(data, path) {
 }
 
 function generate(source, destination) {
-    let base, data;
 
     // let origin = source;
     let path = destination;
