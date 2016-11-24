@@ -1,6 +1,6 @@
 {
   "name": "ngest",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Ingests multiple JSON schemas into one schema, by resolving $ref property data. Will ingest absolute  and relative references",
   "main": "index.js",
   "scripts": {
