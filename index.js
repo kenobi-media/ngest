@@ -6,29 +6,33 @@ let base, data;
 function addToDefinitions(refprop){
   // console.log(base);
    if (base.hasOwnProperty("definitions")){
-     base.definitions[refprop['title']] = refprop;
+     base.definitions[refprop['title']] = refprop.properties;
    } else {
      let defs = 'definitions';
      let prop = refprop['title'];
-     base[defs] = { [prop]: refprop};
+     base[defs] = { [prop]: refprop.properties};
    }
  }
 
+
+function getRemoteUrl(){
+ if (typeof base_url != 'undefined') {
+        if (typeof fragment != 'undefined') {
+          fetch_url = base_url + '/' + fragment;
+          // Go fetch URL
+        }
+        else {
+          // Fetch base URL
+        }
+  }
+}
 function getSchema(current_key_val){
 
   // Check $ref attributes and parse them
   let fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
   let base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
 
-  // if (typeof base_url != 'undefined') {
-  //       if (typeof fragment != 'undefined') {
-  //         fetch_url = base_url + '/' + fragment;
-  //         // Go fetch URL
-  //       }
-  //       else {
-  //         // Fetch base URL
-  //       }
-  // }
+//   getRemoteUrl();
 
   if (typeof fragment != 'undefined') {
     // Fetch from file system
@@ -40,10 +44,9 @@ function getSchema(current_key_val){
       // need to add this to definitions
       addToDefinitions(schema);
       // changeCurrentValToDefinition(schema);
-
       return {
         'new_key_value': '#/definitions/' + schema['title'],
-        'new_schema': schema
+        'new_schema': schema.properties
       }
   }
 }
@@ -75,7 +78,8 @@ function resolveReference(obj) {
                 if (res){
                   // Make some amends to our sub-schema
                   obj[props[key]] = res.new_key_value;
-                  // Recurse on the sub-schema
+
+                  // Rec    urse on the sub-schema
                   resolveReference(res.new_schema);
                 }
 
