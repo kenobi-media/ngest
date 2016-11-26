@@ -10,13 +10,10 @@ function addToDefinitions(refprop) {
     delete refprop.title;
 
     if (base.hasOwnProperty("definitions")) {
-        console.log(title);
-
         base.definitions[title] = refprop;
     } else {
 
         let defs = 'definitions';
-        //  let prop = title;
         base[defs] = { [title]: refprop };
     }
 }
@@ -49,7 +46,7 @@ function getSchema(current_key_val) {
 
     if (typeof fragment !== 'undefined') {
         // Fetch from file system
-        console.log('Using schema specified in fragment ' + fragment);
+        // console.log('Using schema specified in fragment ' + fragment);
         let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
 
         // we don't need the $schema property when represented in the definitions'
@@ -116,9 +113,11 @@ function getSourceData(path) {
 function writeOut(data, path) {
     fs.writeFile(path, data, function (error) {
         if (error) {
-            console.error("write error:  " + error.message);
+            // console.error("write error:  " + error.message);
+            throw new Error("write error:  " + error.message);
         } else {
-            console.log("Successful Write to " + path);
+            // console.log("Successful Write to " + path);
+            return true;
         }
     });
 }
