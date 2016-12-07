@@ -17,6 +17,9 @@
         "uuid": {
             "$ref": "#/examples/uuid.json"
         },
+        "another_uuid": {
+            "$ref": "#/examples/uuid.json"
+        },
         "venue": {
             "$ref": "#/definitions/venue"
         }
