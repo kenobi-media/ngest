@@ -1,140 +1,211 @@
 'use strict';
 
-let fs = require('fs');
+const fs = require('fs');
+
 let base, data;
 
+/**
+ * 
+ * 
+ * @param {any} refprop
+ */
 function addToDefinitions(refprop) {
 
-    let title = refprop['title'];
-    // remove the title
-    delete refprop.title;
+  let title = refprop['title'];
+  // remove the title
+  delete refprop.title;
 
-    if (base.hasOwnProperty("definitions")) {
-        base.definitions[title] = refprop;
-    } else {
+  if (base.hasOwnProperty("definitions")) {
+    base.definitions[title] = refprop;
+  } else {
 
-        let defs = 'definitions';
-        base[defs] = { [title]: refprop };
-    }
+    let defs = 'definitions';
+    base[defs] = { [title]: refprop };
+  }
 }
 
 /**
  * 
  */
 function getRemoteUrl() {
-    if (typeof base_url != 'undefined') {
-        if (typeof fragment != 'undefined') {
-            fetch_url = base_url + '/' + fragment;
-            // Go fetch URL
-        }
-        else {
-            // Fetch base URL
-        }
+  if (typeof base_url != 'undefined') {
+    if (typeof fragment != 'undefined') {
+      fetch_url = base_url + '/' + fragment;
+      // Go fetch URL
     }
+    else {
+      // Fetch base URL
+    }
+  }
 }
 
 /**
  * Extracts schema fragment
+ * 
+ * 
+ * @param {string} current_key_val
+ * @returns
  */
 function getSchema(current_key_val) {
 
-    // Check $ref attributes and parse them
-    let fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
-    let base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
+  // Check $ref attributes and parse them
+  let fragment = current_key_val.substring(current_key_val.indexOf("#") + 1);
+  let base_url = current_key_val.substring(0, current_key_val.indexOf("#"));
 
-    //   getRemoteUrl();
+  //   getRemoteUrl();
 
-    if (typeof fragment !== 'undefined') {
-        // Fetch from file system
-        // console.log('Using schema specified in fragment ' + fragment);
-        let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
+  if (typeof fragment !== 'undefined') {
+    // Fetch from file system
+    // console.log('Using schema specified in fragment ' + fragment);
+    let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
 
-        // we don't need the $schema property when represented in the definitions'
-        delete schema["$schema"];
+    // we don't need the $schema property when represented in the definitions'
+    delete schema["$schema"];
 
-        // at this time neither the id
-        delete schema["id"];
-        let definition_title = '#/definitions/' + schema['title'];
+    // at this time neither the id
+    delete schema["id"];
+    let definition_title = '#/definitions/' + schema['title'];
 
-        // need to add this to definitions
-        addToDefinitions(schema);
-        return {
-            'new_key_value': definition_title,
-            'new_schema': schema.properties
-        }
+    // need to add this to definitions
+    addToDefinitions(schema);
+    return {
+      'new_key_value': definition_title,
+      'new_schema': schema.properties
     }
+  }
 }
 
 
+/**
+ * Resolves the references contained within an object
+ * 
+ * @param {object} obj
+ * @returns
+ */
 function resolveReference(obj) {
 
-    if (typeof obj == 'undefined') {
-        return;
-    }
+  if (typeof obj == 'undefined') {
+    return;
+  }
 
-    let props = Object.keys(obj);
+  let props = Object.keys(obj);
 
-    for (let key in props) {
+  for (let key in props) {
 
-        let current_key = props[key];
-        let current_key_val = obj[props[key]];
+    let current_key = props[key];
+    let current_key_val = obj[props[key]];
 
-        if (typeof current_key_val == 'object') {
-            // Recurse on any child objects
-            // obj[current_key] = resolveReference(current_key_val);
-            resolveReference(current_key_val);
-        } else {
-            let res, schema = "";
-            // only review $ref keys, which have a value with a hash and the value does not include a definitions as definitions are usually insitu
-            if (current_key == '$ref' && current_key_val.indexOf('#') !== -1 && current_key_val.indexOf('definitions') === -1) {
+    if (typeof current_key_val == 'object') {
+      // Recurse on any child objects
+      // obj[current_key] = resolveReference(current_key_val);
+      resolveReference(current_key_val);
+    } else {
+      let res, schema = "";
+      // only review $ref keys, which have a value with a hash and the value does not include a definitions as definitions are usually insitu
+      if (current_key == '$ref' && current_key_val.indexOf('definitions') === -1) {
 
-                res = getSchema(current_key_val);
-                if (res) {
-                    // Make some amends to our sub-schema
-                    obj[props[key]] = res.new_key_value;
+        res = getSchema(current_key_val);
+        if (res) {
+          // Make some amends to our sub-schema
+          obj[props[key]] = res.new_key_value;
 
-                    // Rec    urse on the sub-schema
-                    resolveReference(res.new_schema);
-                }
-
-            }
-
+          // Rec    urse on the sub-schema
+          resolveReference(res.new_schema);
         }
 
+      }
+
     }
 
-    return obj;
+  }
+
+  return obj;
 }
 
+
+/**
+ * Reads source path
+ * 
+ * @param {string} path
+ * @returns
+ */
 function getSourceData(path) {
-    return JSON.parse(fs.readFileSync(path));
+
+  return JSON.parse(fs.readFileSync(path));
+
 }
 
+
+/**
+ * 
+ * 
+ * @param {any} data
+ * @param {any} path
+ */
 function writeOut(data, path) {
-    fs.writeFile(path, data, function (error) {
-        if (error) {
-            // console.error("write error:  " + error.message);
-            throw new Error("write error:  " + error.message);
-        } else {
-            // console.log("Successful Write to " + path);
-            return true;
-        }
-    });
+  fs.writeFile(path, data, function (error) {
+    if (error) {
+      // console.error("write error:  " + error.message);
+      throw new Error("write error:  " + error.message);
+    } else {
+      // console.log("Successful Write to " + path);
+      return true;
+    }
+  });
 }
 
-function generate(source, destination) {
 
-    // let origin = source;
-    let path = destination;
-    base = getSourceData(source);
-    if (typeof base !== 'undefined') {
-        data = JSON.stringify(resolveReference(base));
-        if (typeof data !== 'undefined') {
-            writeOut(data, path);
-        } else {
-            throw new Error('me nah know');
-        }
+/**
+ * Writes a sample json document against the schema
+ * 
+ * @param {object} data
+ * @param {string} path
+ */
+function writeSample(data, path) {
+  const jsf = require('json-schema-faker');
+
+  fs.writeFile(path, JSON.stringify(jsf(JSON.parse(data))), function (error) {
+    if (error) {
+      throw new Error("write error:  " + error.message);
+    } else {
+      return true;
     }
+  });
+}
+
+
+/**
+ * Generate the ingested schema
+ * 
+ * @param {string} source
+ * @param {string} destination
+ * @param {string} sample
+ */
+function generate(source, destination, sample) {
+
+  let path = destination;
+  if (!source) {
+    throw new Error('There is no source file');
+  }
+
+  if (!destination) {
+    throw new Error('Please specify a destination path');
+  }
+
+  try {
+    base = getSourceData(source);
+    data = JSON.stringify(resolveReference(base));
+    if (typeof data !== 'undefined') {
+      writeOut(data, path);
+      if (sample) {
+        writeSample(data, sample);
+      }
+    }
+  }
+  catch (err) {
+    throw new Error('me nah know');
+  }
+
 }
 
 module.exports = generate;

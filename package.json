@@ -1,6 +1,6 @@
 {
   "name": "ngest",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Ingests multiple JSON schemas into one schema, by resolving $ref property data. Will ingest absolute  and relative references",
   "main": "index.js",
   "scripts": {
@@ -39,5 +39,8 @@
   "devDependencies": {
     "istanbul": "0.4.5",
     "jasmine-node": "1.14.5"
+  },
+  "dependencies": {
+    "json-schema-faker": "^0.4.0"
   }
 }

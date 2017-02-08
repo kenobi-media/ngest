@@ -1,1 +1,4 @@
 test.json
+examples/*
+tests
+coverage
