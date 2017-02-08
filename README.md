@@ -22,6 +22,17 @@ var ngest = require('ngest');
 ngest(source, destination);
 ```
 
+If you want to generate sample data use
+```js
+var ngest = require('ngest');
+ngest(source, destination, sample);
+```
+
+Where 
+* source is path to source schema
+* destination is path you want to write the composite schema
+* sample is the path you want to write the sample json 
+
 Both the source and destination are file locations currently. The script will only ready from a local file system.
 
 ## Roadmap
