@@ -203,7 +203,7 @@ function generate(source, destination, sample) {
     }
   }
   catch (err) {
-    throw new Error('me nah know');
+    throw new Error(err);
   }
 
 }

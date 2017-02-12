@@ -59,7 +59,7 @@ describe('Test negatives', () => {
         let source = process.cwd() + '/examples/basic_empty.json';
         expect( () => {
              handler(source, dest, sample);
-        }).toThrow('me nah know');
+        }).toThrow();
         
     })
     
