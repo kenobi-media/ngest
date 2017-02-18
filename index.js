@@ -160,6 +160,7 @@ function writeOut(data, path) {
  * 
  * @param {object} data
  * @param {string} path
+ * @deprecated faker is to big
  */
 function writeSample(data, path) {
   const jsf = require('json-schema-faker');
@@ -198,14 +199,14 @@ function generate(source, destination, sample) {
     if (typeof data !== 'undefined') {
       writeOut(data, path);
       if (sample) {
-        writeSample(data, sample);
+        // writeSample(data, sample);
       }
     }
   }
   catch (err) {
     throw new Error(err);
   }
-
+  
 }
 
 module.exports = generate;

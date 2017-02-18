@@ -40,7 +40,5 @@
     "istanbul": "0.4.5",
     "jasmine-node": "1.14.5"
   },
-  "dependencies": {
-    "json-schema-faker": "^0.4.0"
-  }
+  "dependencies": {}
 }
