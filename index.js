@@ -20,7 +20,9 @@ function addToDefinitions(refprop) {
   } else {
 
     let defs = 'definitions';
-    base[defs] = { [title]: refprop };
+    base[defs] = {
+      [title]: refprop
+    };
   }
 }
 
@@ -32,8 +34,7 @@ function getRemoteUrl() {
     if (typeof fragment != 'undefined') {
       fetch_url = base_url + '/' + fragment;
       // Go fetch URL
-    }
-    else {
+    } else {
       // Fetch base URL
     }
   }
@@ -130,9 +131,7 @@ function resolveReference(obj) {
  * @returns
  */
 function getSourceData(path) {
-
-  return JSON.parse(fs.readFileSync(path));
-
+  return Promise.resolve(JSON.parse(fs.readFileSync(path)));
 }
 
 
@@ -143,36 +142,18 @@ function getSourceData(path) {
  * @param {any} path
  */
 function writeOut(data, path) {
-  fs.writeFile(path, data, function (error) {
-    if (error) {
-      // console.error("write error:  " + error.message);
-      throw new Error("write error:  " + error.message);
-    } else {
-      // console.log("Successful Write to " + path);
-      return true;
-    }
-  });
+
+  return new Promise((resolve, reject) => {
+    fs.writeFile(path, data, function (error) {
+      if (error) {
+        reject(new Error("write error:  " + error.message));
+      } else {
+        resolve(true);
+      }
+    })
+  })
 }
 
-
-/**
- * Writes a sample json document against the schema
- * 
- * @param {object} data
- * @param {string} path
- * @deprecated faker is to big
- */
-function writeSample(data, path) {
-  const jsf = require('json-schema-faker');
-
-  fs.writeFile(path, JSON.stringify(jsf(JSON.parse(data))), function (error) {
-    if (error) {
-      throw new Error("write error:  " + error.message);
-    } else {
-      return true;
-    }
-  });
-}
 
 
 /**
@@ -182,6 +163,50 @@ function writeSample(data, path) {
  * @param {string} destination
  * @param {string} sample
  */
+function generate(source, destination, sample) {
+
+  return new Promise((resolve, reject) => {
+
+
+    let path = destination;
+    if (!source) {
+      return reject(new Error('There is no source file'));
+    }
+
+    if (!destination) {
+      return reject(new Error('Please specify a destination path'));
+    }
+
+    // set the base
+    getSourceData(source)
+      .then(res => {
+        base = res;
+        return base;
+      })
+      .then(res => {
+        data = JSON.stringify(resolveReference(base));
+        return data;
+      })
+      .then(res => {
+        if (typeof res !== 'undefined') {
+          resolve(writeOut(data, path));
+        } else {
+         return reject(new Error('Nothing resolved from references'))
+        }
+      })
+      .catch(err => {
+        reject(err);
+      })
+  })
+}
+
+/**
+ * Generate the ingested schema
+ * 
+ * @param {string} source
+ * @param {string} destination
+ * @param {string} sample
+ 
 function generate(source, destination, sample) {
 
   let path = destination;
@@ -202,11 +227,10 @@ function generate(source, destination, sample) {
         // writeSample(data, sample);
       }
     }
-  }
-  catch (err) {
+  } catch (err) {
     throw new Error(err);
   }
-  
-}
+
+}*/
 
 module.exports = generate;

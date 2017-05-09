@@ -4,8 +4,8 @@
   "description": "Ingests multiple JSON schemas into one schema, by resolving $ref property data. Will ingest absolute  and relative references",
   "main": "index.js",
   "scripts": {
-    "test": "jasmine-node ./ --color",
-    "cover": "istanbul cover jasmine-node -- ."
+    "test": "jasmine",
+    "cover": "istanbul cover jasmine ."
   },
   "repository": {
     "type": "git",
@@ -37,8 +37,10 @@
   },
   "homepage": "https://github.com/kenobi-media/ngest#readme",
   "devDependencies": {
-    "istanbul": "0.4.5",
-    "jasmine-node": "1.14.5"
+    "istanbul": "0.4.5"
   },
-  "dependencies": {}
+  "dependencies": {
+    "jasmine": "^2.6.0",
+    "jasmine-spec-reporter": "^4.1.0"
+  }
 }
