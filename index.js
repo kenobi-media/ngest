@@ -1,12 +1,12 @@
 'use strict';
 
 const fs = require('fs');
-
+const path = require('path')
 let base, data;
 
 /**
- * 
- * 
+ *
+ *
  * @param {any} refprop
  */
 function addToDefinitions(refprop) {
@@ -27,7 +27,7 @@ function addToDefinitions(refprop) {
 }
 
 /**
- * 
+ *
  */
 function getRemoteUrl() {
   if (typeof base_url != 'undefined') {
@@ -42,8 +42,8 @@ function getRemoteUrl() {
 
 /**
  * Extracts schema fragment
- * 
- * 
+ *
+ *
  * @param {string} current_key_val
  * @returns
  */
@@ -79,7 +79,7 @@ function getSchema(current_key_val) {
 
 /**
  * Resolves the references contained within an object
- * 
+ *
  * @param {object} obj
  * @returns
  */
@@ -126,7 +126,7 @@ function resolveReference(obj) {
 
 /**
  * Reads source path
- * 
+ *
  * @param {string} path
  * @returns
  */
@@ -136,15 +136,21 @@ function getSourceData(path) {
 
 
 /**
- * 
- * 
+ *
+ *
  * @param {any} data
- * @param {any} path
+ * @param {any} destination
  */
-function writeOut(data, path) {
+function writeOut(data, destination) {
 
   return new Promise((resolve, reject) => {
-    fs.writeFile(path, data, function (error) {
+    let dir = path.dirname(destination)
+
+    fs.mkdir(dir, (err) => {
+      if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
+    });
+
+    fs.writeFile(destination, data, function (error) {
       if (error) {
         reject(new Error("write error:  " + error.message));
       } else {
@@ -158,7 +164,7 @@ function writeOut(data, path) {
 
 /**
  * Generate the ingested schema
- * 
+ *
  * @param {string} source
  * @param {string} destination
  * @param {string} sample
@@ -168,7 +174,7 @@ function generate(source, destination, sample) {
   return new Promise((resolve, reject) => {
 
 
-    let path = destination;
+    // let path = destination;
     if (!source) {
       return reject(new Error('There is no source file'));
     }
@@ -184,14 +190,15 @@ function generate(source, destination, sample) {
         return base;
       })
       .then(res => {
+
         data = JSON.stringify(resolveReference(base));
         return data;
       })
       .then(res => {
         if (typeof res !== 'undefined') {
-          resolve(writeOut(data, path));
+          resolve(writeOut(data, destination));
         } else {
-         return reject(new Error('Nothing resolved from references'))
+          return reject(new Error('Nothing resolved from references'))
         }
       })
       .catch(err => {
@@ -200,37 +207,5 @@ function generate(source, destination, sample) {
   })
 }
 
-/**
- * Generate the ingested schema
- * 
- * @param {string} source
- * @param {string} destination
- * @param {string} sample
- 
-function generate(source, destination, sample) {
-
-  let path = destination;
-  if (!source) {
-    throw new Error('There is no source file');
-  }
-
-  if (!destination) {
-    throw new Error('Please specify a destination path');
-  }
-
-  try {
-    base = getSourceData(source);
-    data = JSON.stringify(resolveReference(base));
-    if (typeof data !== 'undefined') {
-      writeOut(data, path);
-      if (sample) {
-        // writeSample(data, sample);
-      }
-    }
-  } catch (err) {
-    throw new Error(err);
-  }
-
-}*/
 
 module.exports = generate;
