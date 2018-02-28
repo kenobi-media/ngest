@@ -134,7 +134,7 @@ function getSourceData(source) {
       try {
         return resolve(JSON.parse(data));
       }
-      catch( err) {
+      catch (err) {
         return reject(data);
       }
 
@@ -142,6 +142,17 @@ function getSourceData(source) {
   })
 }
 
+
+function makeDirectory(destination) {
+  return new Promise((resolve, reject) => {
+    let dir = path.dirname(destination)
+
+    fs.mkdir(dir, (err) => {
+      if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
+      else return resolve(true)
+    });
+  })
+}
 
 /**
  *
@@ -152,19 +163,17 @@ function getSourceData(source) {
 function writeOut(data, destination) {
 
   return new Promise((resolve, reject) => {
-    let dir = path.dirname(destination)
+    makeDirectory(destination)
+      .then(() => {
+        fs.writeFile(destination, data, (error) => {
+          if (error) {
+            reject(new Error("write error:  " + error.message));
+          } else {
+            resolve(true);
+          }
+        })
+      })
 
-    fs.mkdir(dir, (err) => {
-      if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
-    });
-
-    fs.writeFile(destination, data, (error) => {
-      if (error) {
-        reject(new Error("write error:  " + error.message));
-      } else {
-        resolve(true);
-      }
-    })
   })
 }
 
@@ -200,11 +209,17 @@ function generate(source, destination) {
         return data;
       })
       .then(res => {
-        if (typeof res !== 'undefined') {
-          resolve(writeOut(data, destination));
-        } else {
-          return reject(new Error('Nothing resolved from references'))
+        if (typeof res === 'undefined') {
+          return reject(`Nothing resolved from references in ${source}`)
         }
+
+        //   return makeDirectory(destination)
+        // })
+        // .then(() => {
+        return writeOut(data, destination);
+      })
+      .then(() => {
+        resolve()
       })
       .catch(err => {
         reject(err);
