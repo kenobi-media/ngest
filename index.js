@@ -131,7 +131,13 @@ function getSourceData(source) {
   return new Promise((resolve, reject) => {
     fs.readFile(source, (err, data) => {
       if (err) return reject(err)
-      return resolve(JSON.parse(data));
+      try {
+        return resolve(JSON.parse(data));
+      }
+      catch( err) {
+        return reject(data);
+      }
+
     })
   })
 }
