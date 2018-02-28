@@ -113,11 +113,8 @@ function resolveReference(obj) {
           // Rec    urse on the sub-schema
           resolveReference(res.new_schema);
         }
-
       }
-
     }
-
   }
 
   return obj;
@@ -127,11 +124,16 @@ function resolveReference(obj) {
 /**
  * Reads source path
  *
- * @param {string} path
+ * @param {string} source
  * @returns
  */
-function getSourceData(path) {
-  return Promise.resolve(JSON.parse(fs.readFileSync(path)));
+function getSourceData(source) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(source, (err, data) => {
+      if (err) return reject(err)
+      return resolve(JSON.parse(data));
+    })
+  })
 }
 
 
@@ -150,7 +152,7 @@ function writeOut(data, destination) {
       if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
     });
 
-    fs.writeFile(destination, data, function (error) {
+    fs.writeFile(destination, data, (error) => {
       if (error) {
         reject(new Error("write error:  " + error.message));
       } else {
@@ -169,10 +171,9 @@ function writeOut(data, destination) {
  * @param {string} destination
  * @param {string} sample
  */
-function generate(source, destination, sample) {
+function generate(source, destination) {
 
   return new Promise((resolve, reject) => {
-
 
     // let path = destination;
     if (!source) {
@@ -183,14 +184,12 @@ function generate(source, destination, sample) {
       return reject(new Error('Please specify a destination path'));
     }
 
-    // set the base
     getSourceData(source)
       .then(res => {
         base = res;
         return base;
       })
       .then(res => {
-
         data = JSON.stringify(resolveReference(base));
         return data;
       })
