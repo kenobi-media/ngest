@@ -13,7 +13,7 @@ describe('Test generate schema', function () {
   it('can generate stuff', done => {
     let dest = process.cwd() + '/examples/results.json';
     let source = process.cwd() + '/examples/basic.json';
-    handler(source, dest)
+    handler(source, dest, 'http://foo.bar.bar', '1.0.0')
       .then(res => {
         expect(res).toBeDefined();
         done();
@@ -22,7 +22,7 @@ describe('Test generate schema', function () {
         expect(err).toBeUndefined();
         done();
       })
-    
+
   })
 
   it('makes definitions', function () {

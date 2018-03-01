@@ -1,4 +1,5 @@
 {
+    "$id": "http://foo.bar/images.json",
     "$schema": "http://json-schema.org/draft-04/schema#",
     "title": "images",
     "description": "Universally Unique Identifier",
