@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path')
-let base, data;
+let base, data, schema_id_url, schema_id_version;
 
 /**
  *
@@ -64,7 +64,7 @@ function getSchema(current_key_val) {
     delete schema["$schema"];
 
     // at this time neither the id
-    delete schema["id"];
+    delete schema["$id"];
     let definition_title = '#/definitions/' + schema['title'];
 
     // need to add this to definitions
@@ -88,6 +88,7 @@ function resolveReference(obj) {
   if (typeof obj == 'undefined') {
     return;
   }
+
 
   let props = Object.keys(obj);
 
@@ -115,7 +116,10 @@ function resolveReference(obj) {
         }
       }
     }
+
+
   }
+
 
   return obj;
 }
@@ -143,17 +147,6 @@ function getSourceData(source) {
 }
 
 
-function makeDirectory(destination) {
-  return new Promise((resolve, reject) => {
-    let dir = path.dirname(destination)
-
-    fs.mkdir(dir, (err) => {
-      if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
-      else return resolve(true)
-    });
-  })
-}
-
 /**
  *
  *
@@ -163,31 +156,35 @@ function makeDirectory(destination) {
 function writeOut(data, destination) {
 
   return new Promise((resolve, reject) => {
-    makeDirectory(destination)
-      .then(() => {
-        fs.writeFile(destination, data, (error) => {
-          if (error) {
-            reject(new Error("write error:  " + error.message));
-          } else {
-            resolve(true);
-          }
-        })
-      })
+    let dir = path.dirname(destination)
 
+    fs.mkdir(dir, (err) => {
+      if (err && err.code != 'EEXIST') return reject(err); // ignore the error if the folder already exists
+    });
+
+    fs.writeFile(destination, data, (error) => {
+      if (error) {
+        reject(new Error("write error:  " + error.message));
+      } else {
+        resolve(true);
+      }
+    })
   })
 }
-
 
 
 /**
  * Generate the ingested schema
  *
- * @param {string} source
- * @param {string} destination
- * @param {string} sample
+ * @param {any} source
+ * @param {any} destination
+ * @param {any} schema_url
+ * @param {any} version
+ * @returns
  */
-function generate(source, destination) {
-
+function generate(source, destination, schema_url, version) {
+  schema_id_url = schema_url;
+  schema_id_version = version
   return new Promise((resolve, reject) => {
 
     // let path = destination;
@@ -201,25 +198,24 @@ function generate(source, destination) {
 
     getSourceData(source)
       .then(res => {
+        // add some meta, including urls
+        let basename = path.basename(res['$id']);
+        res['$id'] = schema_id_url + "/" + basename;
+        res['version'] = schema_id_version;
+
         base = res;
         return base;
       })
       .then(res => {
-        data = JSON.stringify(resolveReference(base));
+        data = JSON.stringify(resolveReference(res));
         return data;
       })
       .then(res => {
-        if (typeof res === 'undefined') {
-          return reject(`Nothing resolved from references in ${source}`)
+        if (typeof res !== 'undefined') {
+          resolve(writeOut(data, destination));
+        } else {
+          return reject(new Error('Nothing resolved from references'))
         }
-
-        //   return makeDirectory(destination)
-        // })
-        // .then(() => {
-        return writeOut(data, destination);
-      })
-      .then(() => {
-        resolve()
       })
       .catch(err => {
         reject(err);
