@@ -58,21 +58,28 @@ function getSchema(current_key_val) {
   if (typeof fragment !== 'undefined') {
     // Fetch from file system
     // console.log('Using schema specified in fragment ' + fragment);
-    let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
+    try {
+      let schema = JSON.parse(fs.readFileSync(process.cwd() + '/' + fragment));
+      // we don't need the $schema property when represented in the definitions'
+      delete schema["$schema"];
 
-    // we don't need the $schema property when represented in the definitions'
-    delete schema["$schema"];
+      // at this time neither the id
+      delete schema["$id"];
+      let definition_title = '#/definitions/' + schema['title'];
 
-    // at this time neither the id
-    delete schema["$id"];
-    let definition_title = '#/definitions/' + schema['title'];
-
-    // need to add this to definitions
-    addToDefinitions(schema);
-    return {
-      'new_key_value': definition_title,
-      'new_schema': schema.properties
+      // need to add this to definitions
+      addToDefinitions(schema);
+      return {
+        'new_key_value': definition_title,
+        'new_schema': schema.properties
+      }
     }
+    catch(err){
+      console.log("the current key is", current_key_val)
+      console.log("got an error", err)
+    }
+
+
   }
 }
 
@@ -84,22 +91,31 @@ function getSchema(current_key_val) {
  * @returns
  */
 function resolveReference(obj) {
-
-  if (typeof obj == 'undefined') {
+  if (typeof obj === 'undefined') {
     return;
   }
 
+  if (typeof obj === null){
+    return;
+  }
 
-  let props = Object.keys(obj);
+  let props = [];
+  try {
+    props = Object.keys(obj);
+  }
+  catch(err){
+    console.log('error with this one', obj)
+    console.log(err)
+  }
+    
 
   for (let key in props) {
 
     let current_key = props[key];
     let current_key_val = obj[props[key]];
 
-    if (typeof current_key_val == 'object') {
+    if (typeof current_key_val === 'object') {
       // Recurse on any child objects
-      // obj[current_key] = resolveReference(current_key_val);
       resolveReference(current_key_val);
     } else {
       let res, schema = "";
@@ -112,14 +128,17 @@ function resolveReference(obj) {
           obj[props[key]] = res.new_key_value;
 
           // Rec    urse on the sub-schema
-          resolveReference(res.new_schema);
+          if (res.new_schema !== null){
+            resolveReference(res.new_schema);
+
+          }
+          else {
+
+          }
         }
       }
     }
-
-
   }
-
 
   return obj;
 }
@@ -137,8 +156,7 @@ function getSourceData(source) {
       if (err) return reject(err)
       try {
         return resolve(JSON.parse(data));
-      }
-      catch (err) {
+      } catch (err) {
         return reject(data);
       }
 
@@ -200,6 +218,7 @@ function generate(source, destination, schema_url, version) {
       .then(res => {
         // add some meta, including urls
         let basename = path.basename(res['$id']);
+        console.info(`Generating schema for ${basename}`)
         res['$id'] = schema_id_url + "/" + basename;
         res['version'] = schema_id_version;
 
